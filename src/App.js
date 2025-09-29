@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminRedirect from './components/AdminRedirect';
 import Home from './pages/Home';
 import RestaurantList from './pages/RestaurantList';
 import RestaurantDetail from './pages/RestaurantDetail';
@@ -32,16 +34,53 @@ function App() {
           <Navbar />
           <main>
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/restaurants" element={<RestaurantList />} />
-              <Route path="/restaurants/:id" element={<RestaurantDetail />} />
-              <Route path="/book/:restaurantId" element={<BookingForm />} />
-              <Route path="/my-bookings" element={<MyBookings />} />
-              <Route path="/favorites" element={<Favorites />} />
+              {/* Public routes */}
+              <Route path="/" element={
+                <AdminRedirect>
+                  <Home />
+                </AdminRedirect>
+              } />
+              <Route path="/restaurants" element={
+                <AdminRedirect>
+                  <RestaurantList />
+                </AdminRedirect>
+              } />
+              <Route path="/restaurants/:id" element={
+                <AdminRedirect>
+                  <RestaurantDetail />
+                </AdminRedirect>
+              } />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-            <Route path="/admin" element={<AdminPanel />} />
-            <Route path="/analytics" element={<Analytics />} />
+              
+              {/* User-only routes (hidden from admin) */}
+              <Route path="/book/:restaurantId" element={
+                <ProtectedRoute requireUser>
+                  <BookingForm />
+                </ProtectedRoute>
+              } />
+              <Route path="/my-bookings" element={
+                <ProtectedRoute requireUser>
+                  <MyBookings />
+                </ProtectedRoute>
+              } />
+              <Route path="/favorites" element={
+                <ProtectedRoute requireUser>
+                  <Favorites />
+                </ProtectedRoute>
+              } />
+              
+              {/* Admin-only routes */}
+              <Route path="/admin" element={
+                <ProtectedRoute requireAdmin>
+                  <AdminPanel />
+                </ProtectedRoute>
+              } />
+              <Route path="/analytics" element={
+                <ProtectedRoute requireAdmin>
+                  <Analytics />
+                </ProtectedRoute>
+              } />
             <Route path="/debug-favorites" element={<FavoritesDebug />} />
             <Route path="/test-favorite-click" element={<FavoriteClickTest />} />
             <Route path="/test-booking" element={<BookingTest />} />

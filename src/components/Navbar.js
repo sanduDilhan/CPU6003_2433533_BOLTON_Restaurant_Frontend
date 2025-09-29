@@ -23,14 +23,23 @@ const NavigationBar = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/">Home</Nav.Link>
-            <Nav.Link as={Link} to="/restaurants">Restaurants</Nav.Link>
-            {user && (
+            {/* Hide Home and Restaurants for admin users */}
+            {(!user || user.role !== 'ADMIN') && (
+              <>
+                <Nav.Link as={Link} to="/">Home</Nav.Link>
+                <Nav.Link as={Link} to="/restaurants">Restaurants</Nav.Link>
+              </>
+            )}
+            
+            {/* Show user sections only for non-admin users */}
+            {user && user.role !== 'ADMIN' && (
               <>
                 <Nav.Link as={Link} to="/my-bookings">My Bookings</Nav.Link>
                 <Nav.Link as={Link} to="/favorites">Favorites</Nav.Link>
               </>
             )}
+            
+            {/* Admin sections */}
             {user && user.role === 'ADMIN' && (
               <>
                 <Nav.Link as={Link} to="/admin">Admin Panel</Nav.Link>
@@ -47,15 +56,22 @@ const NavigationBar = () => {
                   {user.firstName} {user.lastName}
                 </span>
               } id="user-dropdown">
-                <NavDropdown.Item as={Link} to="/my-bookings">
-                  My Bookings
-                </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/favorites">
-                  Favorites
-                </NavDropdown.Item>
+                {/* Hide user sections for admin users */}
+                {user.role !== 'ADMIN' && (
+                  <>
+                    <NavDropdown.Item as={Link} to="/my-bookings">
+                      My Bookings
+                    </NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/favorites">
+                      Favorites
+                    </NavDropdown.Item>
+                    <NavDropdown.Divider />
+                  </>
+                )}
+                
+                {/* Admin sections */}
                 {user.role === 'ADMIN' && (
                   <>
-                    <NavDropdown.Divider />
                     <NavDropdown.Item as={Link} to="/admin">
                       <FaCog className="me-1" />
                       Admin Panel
@@ -63,9 +79,10 @@ const NavigationBar = () => {
                     <NavDropdown.Item as={Link} to="/analytics">
                       Analytics
                     </NavDropdown.Item>
+                    <NavDropdown.Divider />
                   </>
                 )}
-                <NavDropdown.Divider />
+                
                 <NavDropdown.Item onClick={handleLogout}>
                   <FaSignOutAlt className="me-1" />
                   Logout
