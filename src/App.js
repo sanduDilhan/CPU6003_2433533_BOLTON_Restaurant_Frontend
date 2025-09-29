@@ -16,6 +16,10 @@ import Analytics from './pages/Analytics';
 import FavoritesDebug from './components/FavoritesDebug';
 import FavoriteClickTest from './components/FavoriteClickTest';
 import BookingTest from './components/BookingTest';
+import CancelBookingTest from './components/CancelBookingTest';
+import CancelBookingDemo from './components/CancelBookingDemo';
+import CancelBookingButton from './components/CancelBookingButton';
+import MyBookingsTest from './components/MyBookingsTest';
 import Error403Test from './components/Error403Test';
 import Footer from './components/Footer';
 
@@ -40,6 +44,9 @@ function App() {
             <Route path="/debug-favorites" element={<FavoritesDebug />} />
             <Route path="/test-favorite-click" element={<FavoriteClickTest />} />
             <Route path="/test-booking" element={<BookingTest />} />
+            <Route path="/test-cancel-booking" element={<CancelBookingTest />} />
+            <Route path="/cancel-booking-demo" element={<CancelBookingDemo />} />
+            <Route path="/test-my-bookings" element={<MyBookingsTest />} />
             <Route path="/test-403-error" element={<Error403Test />} />
             </Routes>
           </main>
