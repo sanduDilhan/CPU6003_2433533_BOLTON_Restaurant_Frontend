@@ -3,9 +3,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { FaUserPlus } from 'react-icons/fa';
 import { userAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -51,7 +53,7 @@ const Register = () => {
       
       if (response.success) {
         setSuccess(true);
-        // Store user data in localStorage (without password)
+        // Store user data using auth context (without password)
         const userData = {
           id: response.user.id,
           username: response.user.username,
@@ -62,7 +64,9 @@ const Register = () => {
           role: response.user.role,
           createdAt: response.user.createdAt
         };
-        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Use auth context to update global state
+        login(userData);
         
         // Redirect to home page after successful registration
         setTimeout(() => {

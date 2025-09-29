@@ -38,6 +38,12 @@ api.interceptors.response.use(
 
 // User API functions
 export const userAPI = {
+  // Login user
+  login: async (loginData) => {
+    const response = await api.post('/users/login', loginData);
+    return response.data;
+  },
+  
   // Register a new user
   register: async (userData) => {
     const response = await api.post('/users/register', userData);

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { FaSignInAlt, FaUserPlus } from 'react-icons/fa';
-import api from '../services/api';
+import { userAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -27,27 +29,37 @@ const Login = () => {
     setError(null);
 
     try {
-      // For demo purposes, we'll use mock authentication
-      // In a real app, you would make an API call to authenticate
-      const mockUsers = [
-        { id: 1, username: 'john_doe', password: 'password123', firstName: 'John', lastName: 'Doe', role: 'USER', favorites: [1, 3, 5] },
-        { id: 2, username: 'jane_smith', password: 'password123', firstName: 'Jane', lastName: 'Smith', role: 'USER', favorites: [2, 4, 6] },
-        { id: 3, username: 'admin', password: 'admin123', firstName: 'Admin', lastName: 'User', role: 'ADMIN', favorites: [] }
-      ];
-
-      const user = mockUsers.find(u => 
-        u.username === formData.username && u.password === formData.password
-      );
-
-      if (user) {
-        localStorage.setItem('user', JSON.stringify(user));
+      const response = await userAPI.login(formData);
+      
+      if (response.success) {
+        // Store user data and token using auth context
+        const userData = {
+          id: response.user.id,
+          username: response.user.username,
+          email: response.user.email,
+          firstName: response.user.firstName,
+          lastName: response.user.lastName,
+          phone: response.user.phone,
+          role: response.user.role,
+          favorites: response.user.favorites || [],
+          token: response.token
+        };
+        
+        // Use auth context to update global state
+        login(userData);
         navigate('/');
       } else {
-        setError('Invalid username or password');
+        setError(response.error || 'Login failed');
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError('Login failed. Please try again.');
+      if (error.response?.data?.error) {
+        setError(error.response.data.error);
+      } else if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -109,10 +121,10 @@ const Login = () => {
               <hr className="my-4" />
               
               <div className="text-center">
-                <h6>Demo Accounts:</h6>
+                <h6>Test with Registered Users:</h6>
                 <small className="text-muted">
-                  <div>User: john_doe / password123</div>
-                  <div>Admin: admin / admin123</div>
+                  <div>Use any user you've registered through the registration form</div>
+                  <div>Or register a new account using the link above</div>
                 </small>
               </div>
             </Card.Body>

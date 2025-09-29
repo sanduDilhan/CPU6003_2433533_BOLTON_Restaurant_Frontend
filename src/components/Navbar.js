@@ -1,22 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUser, FaSignOutAlt, FaCog } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
 
 const NavigationBar = () => {
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
-
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
+    logout();
     navigate('/');
   };
 
