@@ -124,6 +124,57 @@ export const userAPI = {
   }
 };
 
+// Review API functions
+export const reviewAPI = {
+  // Get all reviews
+  getAllReviews: async () => {
+    const response = await api.get('/reviews');
+    return response.data;
+  },
+  
+  // Get review by ID
+  getReviewById: async (id) => {
+    const response = await api.get(`/reviews/${id}`);
+    return response.data;
+  },
+  
+  // Get reviews by restaurant ID
+  getReviewsByRestaurantId: async (restaurantId) => {
+    const response = await api.get(`/reviews/restaurant/${restaurantId}`);
+    return response.data;
+  },
+  
+  // Get reviews by user ID
+  getReviewsByUserId: async (userId) => {
+    const response = await api.get(`/reviews/user/${userId}`);
+    return response.data;
+  },
+  
+  // Get restaurant review stats
+  getRestaurantReviewStats: async (restaurantId) => {
+    const response = await api.get(`/reviews/restaurant/${restaurantId}/stats`);
+    return response.data;
+  },
+  
+  // Create a new review
+  createReview: async (reviewData) => {
+    const response = await api.post('/reviews', reviewData);
+    return response.data;
+  },
+  
+  // Update a review
+  updateReview: async (id, reviewData) => {
+    const response = await api.put(`/reviews/${id}`, reviewData);
+    return response.data;
+  },
+  
+  // Delete a review
+  deleteReview: async (id) => {
+    const response = await api.delete(`/reviews/${id}`);
+    return response.data;
+  }
+};
+
 export default api;
 
 

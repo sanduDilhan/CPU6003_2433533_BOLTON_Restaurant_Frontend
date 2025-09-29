@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Badge, Alert, Tab, Tabs } from 'react-bootstrap';
 import { FaStar, FaMapMarkerAlt, FaPhone, FaClock, FaHeart, FaUtensils } from 'react-icons/fa';
 import api from '../services/api';
+import ReviewSection from '../components/ReviewSection';
 
 const RestaurantDetail = () => {
   const { id } = useParams();
@@ -162,32 +163,8 @@ const RestaurantDetail = () => {
           </Card>
           
           <Tabs defaultActiveKey="reviews" className="mb-4">
-            <Tab eventKey="reviews" title="Reviews">
-              <div className="mt-3">
-                {reviews.length === 0 ? (
-                  <p>No reviews yet. Be the first to review this restaurant!</p>
-                ) : (
-                  reviews.map(review => (
-                    <Card key={review.id} className="mb-3">
-                      <Card.Body>
-                        <div className="d-flex justify-content-between align-items-start">
-                          <div>
-                            <h6>User {review.userId}</h6>
-                            <div className="d-flex align-items-center mb-2">
-                              {renderStars(review.rating)}
-                              <span className="ms-2">{review.rating}/5</span>
-                            </div>
-                          </div>
-                          <small className="text-muted">
-                            {new Date(review.createdAt).toLocaleDateString()}
-                          </small>
-                        </div>
-                        <p className="mb-0">{review.comment}</p>
-                      </Card.Body>
-                    </Card>
-                  ))
-                )}
-              </div>
+            <Tab eventKey="reviews" title="Reviews & Ratings">
+              <ReviewSection restaurantId={parseInt(id)} />
             </Tab>
             
             <Tab eventKey="hours" title="Opening Hours">

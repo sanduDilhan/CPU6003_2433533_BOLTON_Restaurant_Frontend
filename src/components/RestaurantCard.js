@@ -1,10 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Button, Badge, Spinner } from 'react-bootstrap';
 import { FaStar, FaMapMarkerAlt, FaHeart, FaUtensils } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { reviewAPI } from '../services/api';
 
 const RestaurantCard = ({ restaurant, onToggleFavorite, isFavorite }) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [reviewStats, setReviewStats] = useState(null);
+
+  useEffect(() => {
+    loadReviewStats();
+  }, [restaurant.id]);
+
+  const loadReviewStats = async () => {
+    try {
+      const stats = await reviewAPI.getRestaurantReviewStats(restaurant.id);
+      setReviewStats(stats);
+    } catch (error) {
+      console.error('Error loading review stats:', error);
+    }
+  };
 
   const handleFavoriteClick = async (e) => {
     e.preventDefault();
@@ -92,8 +107,15 @@ const RestaurantCard = ({ restaurant, onToggleFavorite, isFavorite }) => {
         
         <div className="mb-2">
           <div className="d-flex align-items-center">
-            {renderStars(restaurant.rating || 0)}
-            <span className="ms-2">{restaurant.rating?.toFixed(1) || 'N/A'}</span>
+            {renderStars(reviewStats?.averageRating || restaurant.rating || 0)}
+            <span className="ms-2">
+              {(reviewStats?.averageRating || restaurant.rating)?.toFixed(1) || 'N/A'}
+            </span>
+            {reviewStats?.reviewCount > 0 && (
+              <span className="ms-2 text-muted small">
+                ({reviewStats.reviewCount} review{reviewStats.reviewCount !== 1 ? 's' : ''})
+              </span>
+            )}
           </div>
         </div>
         

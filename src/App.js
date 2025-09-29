@@ -21,6 +21,7 @@ import CancelBookingDemo from './components/CancelBookingDemo';
 import CancelBookingButton from './components/CancelBookingButton';
 import MyBookingsTest from './components/MyBookingsTest';
 import Error403Test from './components/Error403Test';
+import ReviewTest from './components/ReviewTest';
 import Footer from './components/Footer';
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
             <Route path="/cancel-booking-demo" element={<CancelBookingDemo />} />
             <Route path="/test-my-bookings" element={<MyBookingsTest />} />
             <Route path="/test-403-error" element={<Error403Test />} />
+            <Route path="/test-reviews" element={<ReviewTest />} />
             </Routes>
           </main>
           <Footer />

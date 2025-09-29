@@ -74,5 +74,70 @@ code {
   display: inline-block;
 }
 
+/* Review Styles */
+.star-rating-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star-rating, .rating-star {
+  color: #ddd;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.star-rating:hover, .star-rating.active, .rating-star.active {
+  color: #ffc107;
+}
+
+.review-stats {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 10px;
+}
+
+.review-stats .card {
+  border: none;
+  background: transparent;
+  color: white;
+}
+
+.review-stats .card-body {
+  padding: 1.5rem;
+}
+
+.review-item {
+  border-left: 4px solid #667eea;
+  transition: transform 0.2s ease;
+}
+
+.review-item:hover {
+  transform: translateX(5px);
+}
+
+.review-form {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.review-form .form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.review-form .btn-primary {
+  background-color: #667eea;
+  border-color: #667eea;
+}
+
+.review-form .btn-primary:hover {
+  background-color: #5a6fd8;
+  border-color: #5a6fd8;
+}
+
 
 
