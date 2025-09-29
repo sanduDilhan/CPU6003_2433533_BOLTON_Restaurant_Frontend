@@ -3,8 +3,11 @@ import { Container, Row, Col, Alert } from 'react-bootstrap';
 import RestaurantCard from '../components/RestaurantCard';
 import SearchFilters from '../components/SearchFilters';
 import api from '../services/api';
+import { userAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const RestaurantList = () => {
+  const { user, updateUser } = useAuth();
   const [restaurants, setRestaurants] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,23 +32,65 @@ const RestaurantList = () => {
     }
   };
 
-  const loadFavorites = () => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    setFavorites(user.favorites || []);
+  const loadFavorites = async () => {
+    if (!user || !user.id) {
+      setFavorites([]);
+      return;
+    }
+
+    try {
+      const response = await userAPI.getUserFavorites(user.id);
+      if (response.success) {
+        setFavorites(response.favorites?.map(r => r.id) || []);
+      }
+    } catch (error) {
+      console.error('Error loading favorites:', error);
+    }
   };
 
-  const handleToggleFavorite = (restaurantId) => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!user.id) {
+  const handleToggleFavorite = async (restaurantId) => {
+    console.log('RestaurantList: handleToggleFavorite called for restaurant:', restaurantId);
+    console.log('RestaurantList: User:', user);
+    
+    if (!user || !user.id) {
+      console.log('RestaurantList: User not authenticated');
       alert('Please login to add favorites');
       return;
     }
 
-    const isFavorite = favorites.includes(restaurantId);
-    if (isFavorite) {
-      setFavorites(favorites.filter(id => id !== restaurantId));
-    } else {
-      setFavorites([...favorites, restaurantId]);
+    const isCurrentlyFavorite = favorites.includes(restaurantId);
+    console.log('RestaurantList: Current favorite status:', isCurrentlyFavorite);
+
+    try {
+      let response;
+      if (isCurrentlyFavorite) {
+        console.log('RestaurantList: Removing from favorites for user:', user.id, 'restaurant:', restaurantId);
+        response = await userAPI.removeFromFavorites(user.id, restaurantId);
+      } else {
+        console.log('RestaurantList: Adding to favorites for user:', user.id, 'restaurant:', restaurantId);
+        response = await userAPI.addToFavorites(user.id, restaurantId);
+      }
+      
+      console.log('RestaurantList: API response:', response);
+      
+      if (response.success) {
+        const newFavorites = response.favorites?.map(r => r.id) || [];
+        console.log('RestaurantList: Setting favorites to:', newFavorites);
+        setFavorites(newFavorites);
+        
+        // Update user in auth context
+        const updatedUser = { ...user, favorites: newFavorites };
+        updateUser(updatedUser);
+        
+        console.log('RestaurantList: Favorites updated successfully');
+      } else {
+        console.error('RestaurantList: API failed:', response.error);
+        alert(response.error || 'Failed to update favorites');
+      }
+    } catch (error) {
+      console.error('RestaurantList: Error updating favorite:', error);
+      console.error('RestaurantList: Error details:', error.response?.data);
+      alert('Failed to update favorites. Please try again.');
     }
   };
 

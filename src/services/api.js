@@ -90,6 +90,37 @@ export const userAPI = {
   deleteUser: async (id) => {
     const response = await api.delete(`/users/${id}`);
     return response.data;
+  },
+  
+  // Favorites management
+  getUserFavorites: async (userId) => {
+    const response = await api.get(`/users/${userId}/favorites`);
+    return response.data;
+  },
+  
+  toggleFavorite: async (userId, restaurantId) => {
+    console.log('API: Toggling favorite for user:', userId, 'restaurant:', restaurantId);
+    try {
+      const response = await api.post(`/users/${userId}/favorites/toggle`, {
+        restaurantId: restaurantId
+      });
+      console.log('API: Toggle favorite response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('API: Toggle favorite error:', error);
+      console.error('API: Error response:', error.response?.data);
+      throw error;
+    }
+  },
+  
+  addToFavorites: async (userId, restaurantId) => {
+    const response = await api.post(`/users/${userId}/favorites/${restaurantId}`);
+    return response.data;
+  },
+  
+  removeFromFavorites: async (userId, restaurantId) => {
+    const response = await api.delete(`/users/${userId}/favorites/${restaurantId}`);
+    return response.data;
   }
 };
 

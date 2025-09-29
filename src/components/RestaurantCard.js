@@ -1,9 +1,39 @@
-import React from 'react';
-import { Card, Button, Badge } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Card, Button, Badge, Spinner } from 'react-bootstrap';
 import { FaStar, FaMapMarkerAlt, FaHeart, FaUtensils } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 const RestaurantCard = ({ restaurant, onToggleFavorite, isFavorite }) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleFavoriteClick = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (isProcessing) {
+      console.log('RestaurantCard: Already processing, ignoring click');
+      return;
+    }
+    
+    console.log('RestaurantCard: Heart clicked for restaurant:', restaurant.id);
+    console.log('RestaurantCard: Current favorite status:', isFavorite);
+    console.log('RestaurantCard: onToggleFavorite function:', typeof onToggleFavorite);
+    
+    if (onToggleFavorite) {
+      setIsProcessing(true);
+      try {
+        await onToggleFavorite(restaurant.id);
+        console.log('RestaurantCard: Favorite toggle completed');
+      } catch (error) {
+        console.error('RestaurantCard: Error toggling favorite:', error);
+      } finally {
+        setIsProcessing(false);
+      }
+    } else {
+      console.error('RestaurantCard: onToggleFavorite function is not provided');
+    }
+  };
+
   const renderStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -33,9 +63,14 @@ const RestaurantCard = ({ restaurant, onToggleFavorite, isFavorite }) => {
           variant={isFavorite ? "danger" : "outline-danger"}
           size="sm"
           className="position-absolute top-0 end-0 m-2"
-          onClick={() => onToggleFavorite(restaurant.id)}
+          onClick={handleFavoriteClick}
+          disabled={isProcessing}
         >
-          <FaHeart />
+          {isProcessing ? (
+            <Spinner size="sm" animation="border" />
+          ) : (
+            <FaHeart />
+          )}
         </Button>
       </div>
       

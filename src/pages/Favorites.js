@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Alert } from 'react-bootstrap';
 import RestaurantCard from '../components/RestaurantCard';
-import api from '../services/api';
+import { userAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const Favorites = () => {
+  const { user, updateUser } = useAuth();
   const [favorites, setFavorites] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,25 +17,18 @@ const Favorites = () => {
 
   const loadFavorites = async () => {
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (!user.id) {
+      if (!user || !user.id) {
         setError('Please login to view your favorites');
         return;
       }
 
-      setFavorites(user.favorites || []);
+      const response = await userAPI.getUserFavorites(user.id);
       
-      if (user.favorites && user.favorites.length > 0) {
-        const favoriteRestaurants = [];
-        for (const restaurantId of user.favorites) {
-          try {
-            const response = await api.get(`/restaurants/${restaurantId}`);
-            favoriteRestaurants.push(response.data);
-          } catch (error) {
-            console.error(`Error loading restaurant ${restaurantId}:`, error);
-          }
-        }
-        setRestaurants(favoriteRestaurants);
+      if (response.success) {
+        setRestaurants(response.favorites || []);
+        setFavorites(response.favorites?.map(r => r.id) || []);
+      } else {
+        setError(response.error || 'Failed to load favorites');
       }
     } catch (error) {
       console.error('Error loading favorites:', error);
@@ -43,18 +38,37 @@ const Favorites = () => {
     }
   };
 
-  const handleToggleFavorite = (restaurantId) => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const isFavorite = favorites.includes(restaurantId);
-    
-    if (isFavorite) {
-      const newFavorites = favorites.filter(id => id !== restaurantId);
-      setFavorites(newFavorites);
-      setRestaurants(restaurants.filter(restaurant => restaurant.id !== restaurantId));
+  const handleToggleFavorite = async (restaurantId) => {
+    try {
+      if (!user || !user.id) {
+        setError('Please login to manage favorites');
+        return;
+      }
+
+      const isCurrentlyFavorite = favorites.includes(restaurantId);
+      let response;
       
-      // Update user in localStorage
-      const updatedUser = { ...user, favorites: newFavorites };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      if (isCurrentlyFavorite) {
+        console.log('Favorites: Removing from favorites for user:', user.id, 'restaurant:', restaurantId);
+        response = await userAPI.removeFromFavorites(user.id, restaurantId);
+      } else {
+        console.log('Favorites: Adding to favorites for user:', user.id, 'restaurant:', restaurantId);
+        response = await userAPI.addToFavorites(user.id, restaurantId);
+      }
+      
+      if (response.success) {
+        setRestaurants(response.favorites || []);
+        setFavorites(response.favorites?.map(r => r.id) || []);
+        
+        // Update user in auth context
+        const updatedUser = { ...user, favorites: response.favorites?.map(r => r.id) || [] };
+        updateUser(updatedUser);
+      } else {
+        setError(response.error || 'Failed to update favorites');
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      setError('Failed to update favorites. Please try again.');
     }
   };
 

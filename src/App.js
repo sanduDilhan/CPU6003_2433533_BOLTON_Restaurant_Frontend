@@ -13,6 +13,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminPanel from './pages/AdminPanel';
 import Analytics from './pages/Analytics';
+import FavoritesDebug from './components/FavoritesDebug';
+import FavoriteClickTest from './components/FavoriteClickTest';
+import BookingTest from './components/BookingTest';
+import Error403Test from './components/Error403Test';
 import Footer from './components/Footer';
 
 function App() {
@@ -31,8 +35,12 @@ function App() {
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/admin" element={<AdminPanel />} />
-              <Route path="/analytics" element={<Analytics />} />
+            <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/debug-favorites" element={<FavoritesDebug />} />
+            <Route path="/test-favorite-click" element={<FavoriteClickTest />} />
+            <Route path="/test-booking" element={<BookingTest />} />
+            <Route path="/test-403-error" element={<Error403Test />} />
             </Routes>
           </main>
           <Footer />
