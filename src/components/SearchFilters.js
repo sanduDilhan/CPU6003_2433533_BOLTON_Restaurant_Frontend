@@ -129,3 +129,4 @@ const SearchFilters = ({ onSearch, onFilterChange }) => {
 
 export default SearchFilters;
 
+

@@ -89,3 +89,4 @@ const RestaurantCard = ({ restaurant, onToggleFavorite, isFavorite }) => {
 
 export default RestaurantCard;
 
+

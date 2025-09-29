@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { FaUserPlus } from 'react-icons/fa';
+import { userAPI } from '../services/api';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Register = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,31 +31,55 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(false);
 
+    // Client-side validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
       return;
     }
 
-    try {
-      // For demo purposes, we'll create a mock user
-      const newUser = {
-        id: Date.now(), // Simple ID generation for demo
-        username: formData.username,
-        email: formData.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        phone: formData.phone,
-        role: 'USER',
-        favorites: []
-      };
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setLoading(false);
+      return;
+    }
 
-      localStorage.setItem('user', JSON.stringify(newUser));
-      navigate('/');
+    try {
+      const response = await userAPI.register(formData);
+      
+      if (response.success) {
+        setSuccess(true);
+        // Store user data in localStorage (without password)
+        const userData = {
+          id: response.user.id,
+          username: response.user.username,
+          email: response.user.email,
+          firstName: response.user.firstName,
+          lastName: response.user.lastName,
+          phone: response.user.phone,
+          role: response.user.role,
+          createdAt: response.user.createdAt
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Redirect to home page after successful registration
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      } else {
+        setError(response.error || 'Registration failed');
+      }
     } catch (error) {
       console.error('Registration error:', error);
-      setError('Registration failed. Please try again.');
+      if (error.response?.data?.error) {
+        setError(error.response.data.error);
+      } else if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -71,6 +97,12 @@ const Register = () => {
               {error && (
                 <Alert variant="danger" className="mb-4">
                   {error}
+                </Alert>
+              )}
+              
+              {success && (
+                <Alert variant="success" className="mb-4">
+                  Registration successful! Redirecting to home page...
                 </Alert>
               )}
               
@@ -171,8 +203,8 @@ const Register = () => {
                 </Row>
                 
                 <div className="d-grid mb-3">
-                  <Button type="submit" variant="primary" disabled={loading}>
-                    {loading ? 'Creating Account...' : 'Create Account'}
+                  <Button type="submit" variant="primary" disabled={loading || success}>
+                    {loading ? 'Creating Account...' : success ? 'Account Created!' : 'Create Account'}
                   </Button>
                 </div>
               </Form>
@@ -191,4 +223,5 @@ const Register = () => {
 };
 
 export default Register;
+
 
